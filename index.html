@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>BPM Tapper</title>
+  </head>
+  <body>
+    <h1>BPM Tapper</h1>
+    <button id="tapButton">Tap</button>
+    <p id="bpmDisplay">BPM: N/A</p>
+
+    <script>
+      // BPM Tapper module
+      const BPMTapper = (() => {
+        // Private variables
+        let tapTimes = [];
+        const MAX_TAPS = 10;
+        let bpm = 0;
+
+        // Private function to calculate moving average BPM
+        const calculateBPM = () => {
+          if (tapTimes.length < 2) {
+            // Not enough taps to calculate BPM
+            return;
+          }
+
+          // Calculate the moving average time between taps in milliseconds
+          let sum = 0;
+          for (let i = 1; i < tapTimes.length; i++) {
+            sum += tapTimes[i] - tapTimes[i - 1];
+          }
+          const movingAverageTimeBetweenTaps = sum / (tapTimes.length - 1);
+
+          // Calculate BPM (beats per minute)
+          bpm = Math.round((60 * 1000) / movingAverageTimeBetweenTaps);
+
+          // Update the BPM display
+          displayBPM();
+        };
+
+        // Private function to display BPM
+        const displayBPM = () => {
+          const bpmDisplay = document.getElementById('bpmDisplay');
+          bpmDisplay.textContent = `BPM: ${bpm}`;
+        };
+
+        // Public function to handle tap event
+        const handleTap = () => {
+          const tapTime = Date.now();
+          tapTimes.push(tapTime);
+
+          // Remove older tap times if more than MAX_TAPS
+          if (tapTimes.length > MAX_TAPS) {
+            tapTimes.shift();
+          }
+
+          calculateBPM();
+        };
+
+        // Public function to initialize the BPM Tapper
+        const init = () => {
+          const tapButton = document.getElementById('tapButton');
+          tapButton.addEventListener('click', handleTap);
+        };
+
+        // Return public methods
+        return {
+          init,
+        };
+      })();
+
+      // Initialize the BPM Tapper
+      BPMTapper.init();
+    </script>
+  </body>
+</html>
